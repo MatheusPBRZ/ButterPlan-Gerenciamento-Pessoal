@@ -11,7 +11,11 @@
 <div align="center">
   <img src="Screenshots/page-home.png" width="800" alt="Home"><br><br>
   <img src="Screenshots/page-financas.png" width="45%" alt="Finanças">
-  <img src="Screenshots/tarefas.png" width="45%" alt="Tarefas">
+  <img src="Screenshots/page-relatorios.png" width="45%" alt="Relatorios">
+  <img src="Screenshots/addcontafixa.png" width="45%" alt="contafixa">
+  <img src="Screenshots/addmovimentacao.png" width="45%" alt="contafixa">
+  
+
 </div>
 
 ## 💡 Sobre o Projeto
