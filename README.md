@@ -29,10 +29,7 @@ O **ButterPlan** nasceu da necessidade de centralizar a gestão da vida pessoal 
 * **📊 Business Intelligence Pessoal:**
     * Relatórios automáticos de margem de lucro e taxa de produtividade.
     * Dashboard com visão anual e mensal.
-* **🔒 Segurança:**
-    * Sistema de Login e Registro próprio.
-    * Senhas criptografadas com Hash (Bcrypt).
-    * Proteção contra SQL Injection (PDO).
+
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -48,7 +45,7 @@ O **ButterPlan** nasceu da necessidade de centralizar a gestão da vida pessoal 
     git clone [https://github.com/SEU-USUARIO/ButterPlan.git](https://github.com/SEU-USUARIO/ButterPlan.git)
     ```
 2.  Configure o Banco de Dados:
-    * Crie um banco chamado `lifeos` no seu MySQL/MariaDB.
+    * Crie um banco chamado `butterplan` no seu MySQL/MariaDB.
     * Importe o arquivo `database.sql` disponível na raiz do projeto.
 3.  Configure a conexão:
     * Edite o arquivo `app/Config/Database.php` com suas credenciais locais.
@@ -65,4 +62,4 @@ O **ButterPlan** nasceu da necessidade de centralizar a gestão da vida pessoal 
 * [ ] Integração com APIs de Bancos (Open Finance).
 
 ---
-Desenvolvido com 💙 por [Seu Nome](https://github.com/SEU-USUARIO)
+Developed by [Matheus Passos](https://github.com/SEU-USUARIO)
