@@ -9,7 +9,9 @@
 ## 📸 Demonstração
 
 <div align="center">
-  <img src="ButterPlan\Screenshots.png" alt="Dashboard" width="700">
+  <img src="screenshots/home.png" width="800" alt="Home"><br><br>
+  <img src="screenshots/page-financas.png" width="45%" alt="Finanças">
+  <img src="screenshots/tarefas.png" width="45%" alt="Tarefas">
 </div>
 
 ## 💡 Sobre o Projeto
