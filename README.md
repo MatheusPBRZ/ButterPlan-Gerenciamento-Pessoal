@@ -43,7 +43,7 @@ O **ButterPlan** nasceu da minha própria necessidade de me organizar tanto fina
 
 1.  Clone o repositório:
     ```bash
-    git clone [https://github.com/SEU-USUARIO/ButterPlan.git](https://github.com/SEU-USUARIO/ButterPlan.git)
+    git clone (https://github.com/MatheusPBRZ/ButterPlan-Gerenciamento-Pessoal.git)
     ```
 2.  Configure o Banco de Dados:
     * Crie um banco chamado `butterplan` no seu MySQL/MariaDB.
