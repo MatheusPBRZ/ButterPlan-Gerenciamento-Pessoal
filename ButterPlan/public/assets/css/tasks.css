@@ -1,0 +1,354 @@
+/* /public/assets/css/tasks.css */
+
+/* --- BARRA DE ADICIONAR (Formulário) --- */
+.task-form {
+    display: flex;
+    gap: 10px;
+    background: var(--card-bg);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #333;
+    transition: border-color 0.2s;
+}
+
+.task-form:focus-within {
+    border-color: var(--accent-color);
+}
+
+.input-task {
+    flex: 1; /* Ocupa todo o espaço sobrando */
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+}
+
+.select-priority {
+    background: var(--bg-color);
+    border: 1px solid #444;
+    color: var(--text-secondary);
+    padding: 8px 12px;
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+}
+
+.btn-add {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 0 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: filter 0.2s;
+}
+
+.btn-add:hover {
+    filter: brightness(1.1);
+}
+
+/* --- LISTA DE TAREFAS --- */
+.task-list {
+    list-style: none;
+    padding: 0;
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    background: var(--bg-color);
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.task-item:hover {
+    border-color: #444;
+    transform: translateX(5px);
+    background: #1e1e22; /* Um pouco mais claro que o fundo */
+}
+
+/* Checkbox (Botão Esquerdo) */
+.check-btn {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    margin-right: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex; /* Centraliza o icone */
+    align-items: center;
+}
+
+.check-btn:hover {
+    color: var(--accent-color);
+    transform: scale(1.1);
+}
+
+/* Texto da Tarefa */
+.task-title {
+    flex: 1;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+/* Badge de Prioridade */
+.badge-priority {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-right: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Botão de Excluir (Lixeira) */
+.delete-btn {
+    color: #444;
+    font-size: 0.9rem;
+    opacity: 0; /* Começa invisível */
+    transition: 0.2s;
+    cursor: pointer;
+    padding: 5px;
+}
+
+/* Só mostra a lixeira quando passa o mouse na tarefa */
+.task-item:hover .delete-btn {
+    opacity: 1;
+}
+
+.delete-btn:hover {
+    color: var(--danger-color);
+}
+
+/* --- ESTADO CONCLUÍDO --- */
+.task-item.done {
+    opacity: 0.5;
+    background: transparent;
+    border: 1px dashed #333;
+}
+
+.task-item.done .task-title {
+    text-decoration: line-through;
+    color: var(--text-secondary);
+}
+
+.task-item.done:hover {
+    transform: none; /* Não move quando concluída */
+    border-color: #444;
+}
+
+/* FORMULÁRIO AVANÇADO */
+.task-form-advanced {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input-row { display: flex; gap: 10px; }
+.input-row-bottom { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #333; padding-top: 15px; }
+
+.input-task {
+    flex: 2; padding: 10px; background: var(--bg-color); 
+    border: 1px solid #444; color: white; border-radius: 6px;
+}
+.select-style {
+    background: var(--bg-color); border: 1px solid #444; 
+    color: var(--text-secondary); padding: 8px; border-radius: 6px;
+}
+.input-date {
+    background: var(--bg-color); border: 1px solid #444; 
+    color: white; padding: 8px; border-radius: 6px;
+}
+
+/* CHECKBOX PERSONALIZADO (Repetir) */
+.checkbox-container {
+    display: flex; align-items: center; cursor: pointer; user-select: none; gap: 8px; font-size: 0.9rem;
+}
+.checkbox-container input { display: none; }
+.checkmark {
+    height: 18px; width: 18px; background-color: #333; border-radius: 4px; position: relative;
+}
+.checkbox-container input:checked ~ .checkmark { background-color: var(--accent-color); }
+.label-text { color: var(--text-secondary); }
+.checkbox-container input:checked ~ .label-text { color: white; }
+
+/* TAGS DE CATEGORIA (BADGES) */
+.task-info { flex: 1; display: flex; flex-direction: column; }
+.task-meta { display: flex; gap: 10px; margin-top: 4px; align-items: center; }
+
+.tag { font-size: 0.65rem; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; font-weight: 600; }
+
+/* Cores das Tags */
+.tag-geral { background: #444; color: #ccc; }
+.tag-devpessoal { background: rgba(130, 87, 229, 0.2); color: #8257e5; } /* Roxo */
+.tag-financeiro { background: rgba(4, 211, 97, 0.2); color: #04d361; } /* Verde */
+.tag-trabalho { background: rgba(0, 123, 255, 0.2); color: #007bff; } /* Azul */
+.tag-saude { background: rgba(251, 169, 76, 0.2); color: #fba94c; } /* Laranja */
+
+.meta-icon { font-size: 0.7rem; color: var(--text-secondary); }
+.meta-date { font-size: 0.7rem; color: #777; }
+.atrasado { color: var(--danger-color); font-weight: bold; }
+
+
+
+
+/* --- ESTILOS DE SUBTAREFAS --- */
+
+.btn-subtask {
+    background: transparent;
+    border: 1px solid #444;
+    color: var(--text-secondary);
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex; justify-content: center; align-items: center;
+    margin-right: 10px;
+    transition: 0.2s;
+}
+.btn-subtask:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.subtask-container {
+    width: 100%;
+    margin-top: 10px;
+    padding-left: 40px; /* Indentação */
+    border-left: 2px solid #333;
+}
+
+.subtask-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #222;
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+.subtask-item.done {
+    text-decoration: line-through;
+    color: #666;
+}
+
+.check-mini {
+    margin-right: 10px;
+    color: #555;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+.check-mini:hover { color: var(--accent-color); }
+
+.delete-mini {
+    font-size: 0.8rem; color: #444; cursor: pointer;
+}
+.delete-mini:hover { color: var(--danger-color); }
+
+/* Barra de Progresso da Subtarefa */
+.progress-line {
+    width: 100%; height: 4px; background: #333; margin-top: 5px; border-radius: 2px;
+}
+.progress-line .fill {
+    height: 100%; background: var(--success-color); border-radius: 2px;
+}
+
+/* Tag Padrão */
+.tag-default { background: #333; color: #ddd; border: 1px solid #444; }
+
+
+
+
+/* --- CAMPO DE DESCRIÇÃO (TEXTAREA) --- */
+.input-desc {
+    width: 100%;
+    padding: 10px;
+    background: var(--bg-color);
+    border: 1px solid #444;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    resize: vertical; /* Permite esticar para baixo */
+    font-family: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: 0.2s;
+}
+.input-desc:focus {
+    border-color: var(--accent-color);
+    color: white;
+}
+
+/* --- EXIBIÇÃO DA DESCRIÇÃO NA LISTA --- */
+.task-description {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 2px solid var(--accent-color);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: #ccc;
+    line-height: 1.4;
+    margin-bottom: 10px;
+}
+
+.subtask-description {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    color: #888;
+    background: rgba(0,0,0,0.2);
+    margin-bottom: 5px;
+    border-radius: 4px;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Container da Recorrência */
+.recurrence-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Seletor de Dias */
+.days-selector {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    background: #333;
+    padding: 5px 10px;
+    border-radius: 20px;
+    transition: 0.3s;
+}
+
+.days-selector label {
+    font-size: 0.75rem;
+    cursor: pointer;
+    color: #aaa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-weight: bold;
+}
+
+.days-selector input {
+    margin-bottom: 2px;
+    accent-color: var(--accent-color); /* Cor do checkbox nativo */
+}
+
+.days-selector label:hover { color: white; }
+
+.hidden-days {
+    display: none;
+    opacity: 0;
+}
