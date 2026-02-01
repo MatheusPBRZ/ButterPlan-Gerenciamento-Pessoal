@@ -1,4 +1,4 @@
-# ButterPlan - LifeOS
+# ButterPlan - 
 
 > Um sistema completo de gestão pessoal: Finanças, Hábitos e Produtividade.
 
