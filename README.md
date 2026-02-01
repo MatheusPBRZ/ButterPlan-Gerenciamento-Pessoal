@@ -14,7 +14,7 @@
 
 ## 💡 Sobre o Projeto
 
-O **ButterPlan** nasceu da necessidade de centralizar a gestão da vida pessoal em um único lugar, fugindo da complexidade de usar múltiplos apps. Ele foi desenvolvido com foco em performance e lógica de negócios robusta, utilizando PHP puro e SQL otimizado.
+O **ButterPlan** nasceu da minha própria necessidade de me organizar tanto financeiramente quanto no auxílio dos meus estudos, eu precisava de uma dashboard inteligente que me ajudasse a ter um controle sobre os meus gastos, e que me lembrasse todos os dias de determinadas tarefas, e que funcionasse como um retrospecto mensal da minha produtividade também, alinhado a idéia em que eu já tinha desenvolvido outros projetos em php, tomei como opção utilizar a mesma linguagem para a criação do projeto, que etualmente eu faço o uso dele, e planejo trazer melhorias no futuro.
 
 ### ✨ Funcionalidades Principais
 
@@ -26,7 +26,8 @@ O **ButterPlan** nasceu da necessidade de centralizar a gestão da vida pessoal 
     * **Agendamento por Dias da Semana:** Tarefas que aparecem apenas em dias específicos (ex: Seg e Qua).
     * **Subtarefas (Nested Tasks):** Gestão de projetos complexos com barra de progresso.
     * **Trava de Futuro:** Tarefas agendadas ficam ocultas até o dia correto.
-* **📊 Business Intelligence Pessoal:**
+    * 
+* **📊 Relatórios e gerenciamento:**
     * Relatórios automáticos de margem de lucro e taxa de produtividade.
     * Dashboard com visão anual e mensal.
 
