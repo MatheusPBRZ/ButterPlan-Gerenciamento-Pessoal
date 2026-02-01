@@ -1,4 +1,4 @@
-# 🦋 ButterPlan - LifeOS
+# ButterPlan - LifeOS
 
 > Um sistema completo de gestão pessoal: Finanças, Hábitos e Produtividade.
 
@@ -9,7 +9,7 @@
 ## 📸 Demonstração
 
 <div align="center">
-  <img src="screenshots/dashboard.png" alt="Dashboard" width="700">
+  <img src="ButterPlan\Screenshots.png" alt="Dashboard" width="700">
 </div>
 
 ## 💡 Sobre o Projeto
