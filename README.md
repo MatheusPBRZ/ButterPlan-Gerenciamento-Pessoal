@@ -9,10 +9,10 @@
 ## 📸 Demonstração
 
 <div align="center">
-  <img src="screenshots/dashboard.png" width="800" alt="Dashboard Principal"><br><br>
+  <img src="Screenshots/dashboard.png" width="800" alt="Dashboard Principal"><br><br>
 
-  <img src="screenshots/financas.png" width="48%" alt="Gestão Financeira e Parcelamentos">
-  <img src="screenshots/tarefas.png" width="48%" alt="Sistema de Tarefas e Cronômetro">
+  <img src="Screenshots/financas.png" width="48%" alt="Gestão Financeira e Parcelamentos">
+  <img src="Screenshots/tarefas.png" width="48%" alt="Sistema de Tarefas e Cronômetro">
 </div>
 
 ## 💡 Sobre o Projeto
