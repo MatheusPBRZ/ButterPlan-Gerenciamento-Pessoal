@@ -65,4 +65,4 @@ O **ButterPlan** nasceu da necessidade de centralizar a gestão da vida pessoal 
 * [ ] Integração com APIs externas.
 
 ---
-Desenvolvido por **Matheus**
+
