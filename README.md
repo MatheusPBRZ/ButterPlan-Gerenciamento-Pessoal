@@ -6,14 +6,7 @@
 ![PHP](https://img.shields.io/badge/PHP-8.0%2B-777BB4)
 ![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1)
 
-## 📸 Demonstração
 
-<div align="center">
-  <img src="Screenshots/page-home.png" width="800" alt="Dashboard Principal"><br><br>
-
-  <img src="Screenshots/page-financas.png" width="48%" alt="Gestão Financeira e Parcelamentos">
-  <img src="Screenshots/page-tarefas.png" width="48%" alt="Sistema de Tarefas e Cronômetro">
-</div>
 
 ## 💡 Sobre o Projeto
 
