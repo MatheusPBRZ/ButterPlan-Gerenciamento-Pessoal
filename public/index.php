@@ -5,6 +5,13 @@
 define('BASE_PATH', __DIR__ . '/../');
 require BASE_PATH . 'app/Config/Database.php';
 
+// 👇 CARREGA A BIBLIOTECA DO GOOGLE E DO COMPOSER 👇
+require BASE_PATH . 'vendor/autoload.php';
+use Google\Client;
+use Google\Service\Calendar;
+use Google\Service\Calendar\Event;
+// 👆 ============================================== 👆
+
 use App\Config\Database;
 
 // Pega a página atual (se não tiver, vai pra home)
@@ -14,18 +21,15 @@ try {
     $pdo = Database::getConnection();
 
     // =========================================================
-    // GLOBAL: SISTEMA DE ROTINA (CICLO DE 24 HORAS REAIS)
+    // GLOBAL: SISTEMA DE ROTINA (CICLO POR DIA DA SEMANA)
     // =========================================================
     date_default_timezone_set('America/Sao_Paulo');
-    $agora = date('Y-m-d H:i:s');
+    $hoje = date('Y-m-d');
     
-    // LÓGICA: Busca tarefas recorrentes criadas há mais de 24 horas
-    // SQL: "Se created_at for menor que (Agora - 24 horas)"
-    $stmt = $pdo->query("
-        SELECT * FROM tasks 
-        WHERE is_recurring = 1 
-        AND created_at <= DATE_SUB(NOW(), INTERVAL 24 HOUR)
-    ");
+    // ATUALIZAÇÃO: Busca tarefas recorrentes cuja DATA DE VENCIMENTO é menor que hoje
+    // Ou seja, se virou meia-noite, a de ontem está vencida e deve renovar.
+    $stmt = $pdo->prepare("SELECT * FROM tasks WHERE is_recurring = 1 AND due_date < ?");
+    $stmt->execute([$hoje]);
     $tarefasVencidas = $stmt->fetchAll();
 
     foreach ($tarefasVencidas as $t) {
@@ -61,7 +65,7 @@ try {
             $upd->execute([$statusFinal, $t->id]);
         }
     }
-    // =========================================================
+
     // =========================================================
     // ROTA 1: FINANÇAS (COM PARCELAMENTOS)
     // =========================================================
@@ -141,24 +145,20 @@ try {
         // 2. Processa Parcelamentos
         $parcelamentos = $pdo->query("SELECT * FROM installments ORDER BY created_at DESC")->fetchAll();
         foreach ($parcelamentos as $key => $parc) {
-            // Soma tudo que já foi pago deste parcelamento
             $stmt = $pdo->prepare("SELECT SUM(amount) as pago FROM transactions WHERE installment_id = ?");
             $stmt->execute([$parc->id]);
             $valorPago = $stmt->fetch()->pago ?? 0;
             
-            // Calcula quantas parcelas equivalem esse valor
             $parcelasPagas = floor($valorPago / $parc->installment_amount);
             
             $parcelamentos[$key]->paid_amount = $valorPago;
             $parcelamentos[$key]->paid_installments = $parcelasPagas;
             $parcelamentos[$key]->is_finished = ($valorPago >= $parc->total_amount);
 
-            // Histórico de pagamentos
             $stmtHist = $pdo->prepare("SELECT * FROM transactions WHERE installment_id = ? ORDER BY created_at DESC");
             $stmtHist->execute([$parc->id]);
             $parcelamentos[$key]->history = $stmtHist->fetchAll();
 
-            // Adiciona na pendência do mês se não acabou e se ainda não pagou neste mês
             if (!$parcelamentos[$key]->is_finished) {
                 $stmtMes = $pdo->prepare("SELECT COUNT(*) as pagou_mes FROM transactions WHERE installment_id = ? AND MONTH(created_at) = MONTH(CURRENT_DATE()) AND YEAR(created_at) = YEAR(CURRENT_DATE())");
                 $stmtMes->execute([$parc->id]);
@@ -209,13 +209,66 @@ try {
             $recurrence_days = ($is_recurring && isset($_POST['days'])) ? implode(',', $_POST['days']) : null;
 
             if (!empty($title)) {
+                // 1. SALVA NO BANCO DE DADOS LOCAL (Seu MySQL)
                 $stmt = $pdo->prepare("INSERT INTO tasks (title, description, priority, category, is_recurring, recurrence_days, due_date, duration, parent_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
                 $stmt->execute([$title, $description, $priority, $category, $is_recurring, $recurrence_days, $due_date, $duration, $parent_id]);
+
+                // =========================================================
+                // 2. MAGIA NEGRA: CRIA O EVENTO NO GOOGLE CALENDAR
+                // =========================================================
+                try {
+                    $client = new Client();
+                    $client->setApplicationName('ButterPlan');
+                    $client->setScopes(Calendar::CALENDAR_EVENTS);
+                    $client->setAuthConfig(BASE_PATH . 'keys/credentials.json'); 
+                    $client->setAccessType('offline');
+
+                    $tokenPath = BASE_PATH . 'token.json';
+                    
+                    if (file_exists($tokenPath)) {
+                        $accessToken = json_decode(file_get_contents($tokenPath), true);
+                        $client->setAccessToken($accessToken);
+
+                        if ($client->isAccessTokenExpired() && $client->getRefreshToken()) {
+                            $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+                            file_put_contents($tokenPath, json_encode($client->getAccessToken()));
+                        }
+
+                        $service = new Calendar($client);
+
+                        $dataInicio = date('Y-m-d\T09:00:00-03:00', strtotime($due_date));
+                        $minutosDuracao = $duration ? $duration : 60; 
+                        $dataFim = date('Y-m-d\TH:i:sP', strtotime("$due_date 09:00:00 +$minutosDuracao minutes"));
+
+                        $descGoogle = $description ? $description . "\n\n" : "Tarefa gerada automaticamente.\n\n";
+                        $descGoogle .= "📊 Categoria: " . ucfirst($category) . "\n";
+                        $descGoogle .= "🚨 Prioridade: " . ucfirst($priority);
+
+                        $event = new Event([
+                          'summary' => 'ButterPlan: ' . $title,
+                          'description' => $descGoogle,
+                          'start' => [
+                            'dateTime' => $dataInicio,
+                            'timeZone' => 'America/Sao_Paulo',
+                          ],
+                          'end' => [
+                            'dateTime' => $dataFim,
+                            'timeZone' => 'America/Sao_Paulo',
+                          ],
+                        ]);
+
+                        $service->events->insert('primary', $event);
+                    }
+                } catch (Exception $e) {
+                    error_log("Erro no Google Calendar: " . $e->getMessage());
+                }
+                // =========================================================
             }
-            header('Location: index.php?page=tarefas'); exit;
+            header('Location: index.php?page=tarefas'); 
+            exit;
         }
 
-        // GET: Ações
+        // GET: Ações da Página de Tarefas
         if (isset($_GET['action'])) {
             if ($_GET['action'] == 'toggle_task' && isset($_GET['id'])) {
                 $stmt = $pdo->prepare("SELECT status FROM tasks WHERE id = ?");

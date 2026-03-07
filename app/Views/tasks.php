@@ -68,14 +68,14 @@
                     <div class="input-row-bottom" style="flex-wrap: wrap;">
                         <div class="date-group">
                             <input type="date" name="due_date" class="input-date" value="<?= date('Y-m-d') ?>">
-                            <input type="number" name="duration" class="input-date" placeholder="Min" style="width:70px;">
+                            <input type="number" name="duration" class="input-date" placeholder="MIN" style="width:70px;">
                         </div>
 
                         <div class="recurrence-wrapper">
                             <label class="checkbox-container">
                                 <input type="checkbox" name="is_recurring" id="checkRecur" onchange="toggleDays()">
                                 <span class="checkmark"></span>
-                                <span class="label-text"><i class="fa-solid fa-repeat"></i> Recorrente (24h)</span>
+                                <span class="label-text"><i class="fa-solid fa-repeat"></i> Recorrente (Repetir Nos dias:)</span>
                             </label>
 
                             <div id="daysSelector" class="days-selector hidden-days">
@@ -129,11 +129,11 @@
                                                 <?php endif; ?>
 
                                                 <?php if($task->is_recurring): ?>
-                                                    <span class="meta-date countdown-timer" 
-                                                          data-created="<?= $task->created_at ?>" 
-                                                          style="color: var(--accent-color); font-weight: bold; border: 1px solid #444; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">
-                                                        <i class="fa-solid fa-hourglass-half"></i> <span class="time-display">...</span>
-                                                    </span>
+                                                <span class="meta-date countdown-timer" 
+                                                data-due="<?= $task->due_date ?>" 
+                                                style="color: var(--accent-color); font-weight: bold; border: 1px solid #444; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">
+                                                <i class="fa-solid fa-hourglass-half"></i> <span class="time-display">...</span>
+                                                </span>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
@@ -315,42 +315,66 @@
             }
         }
 
-        // --- LÓGICA DO CRONÔMETRO (24H) ---
+// --- LÓGICA DO CRONÔMETRO (MEIA-NOITE) ---
         function updateTimers() {
             const timers = document.querySelectorAll('.countdown-timer');
             const now = new Date().getTime();
 
             timers.forEach(timer => {
-                // Pega a data de criação (ex: 2026-02-09 10:30:00)
-                const createdStr = timer.getAttribute('data-created').replace(/-/g, "/"); // Fix para compatibilidade
-                const createdAt = new Date(createdStr).getTime();
+                // Pega a data de vencimento (ex: 2026-03-09)
+                const dueDateStr = timer.getAttribute('data-due'); 
                 
-                // Prazo: Criação + 24 horas
-                const deadline = createdAt + (24 * 60 * 60 * 1000);
-                const distance = deadline - now;
+                // Quebramos a data em pedaços para evitar fuso horário maluco do JS
+                const parts = dueDateStr.split('-');
+                const year = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10) - 1; // Mês no JS começa em 0 (Janeiro = 0)
+                const day = parseInt(parts[2], 10);
+
+                // INÍCIO: 00:00:00 da data da tarefa
+                const startTime = new Date(year, month, day, 0, 0, 0).getTime();
+                // FIM: 23:59:59 da data da tarefa
+                const deadline = new Date(year, month, day, 23, 59, 59).getTime();
 
                 const display = timer.querySelector('.time-display');
 
-                if (distance < 0) {
+                if (now < startTime) {
+                    // CÁLCULO PARA O FUTURO (Ainda não começou)
+                    const distToStart = startTime - now;
+                    const d = Math.floor(distToStart / (1000 * 60 * 60 * 24));
+                    const h = Math.floor((distToStart % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const m = Math.floor((distToStart % (1000 * 60 * 60)) / (1000 * 60));
+                    
+                    if (d > 0) {
+                        display.innerText = `Inicia em ${d}d e ${h}h`;
+                    } else {
+                        display.innerText = `Inicia em ${h}h ${m}m`;
+                    }
+                    timer.style.color = "#888"; // Fica cinza indicando espera
+                    
+                } else if (now > deadline) {
+                    // PASSOU DA MEIA-NOITE (Expirou)
                     display.innerText = "Expirando...";
-                    display.style.color = "var(--danger-color)";
-                    // O PHP vai processar a expiração no próximo refresh
+                    timer.style.color = "var(--danger-color)";
+                    
                 } else {
-                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    // É HOJE! Contando quanto tempo falta para acabar o dia
+                    const distance = deadline - now;
+                    const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((distance % (1000 * 60)) / 1000);
 
                     // Formatação bonita: 09h 05m 02s
                     display.innerText = 
-                        (hours < 10 ? "0" + hours : hours) + "h " + 
-                        (minutes < 10 ? "0" + minutes : minutes) + "m " + 
-                        (seconds < 10 ? "0" + seconds : seconds) + "s";
+                        (h < 10 ? "0" + h : h) + "h " + 
+                        (m < 10 ? "0" + m : m) + "m " + 
+                        (s < 10 ? "0" + s : s) + "s";
+                    timer.style.color = "var(--accent-color)";
                 }
             });
         }
 
         setInterval(updateTimers, 1000); // Atualiza a cada segundo
-        updateTimers(); // Roda imediatamente ao carregar
+        updateTimers(); // Roda imediatamente
     </script>
 </body>
 </html>
