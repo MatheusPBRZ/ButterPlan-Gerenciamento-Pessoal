@@ -47,7 +47,7 @@
                         <span>Saldo Atual</span>
                         <i class="fa-solid fa-sack-dollar icon-bg"></i>
                     </div>
-                    <div class="card-value">R$ <?= number_format($saldo, 2, ',', '.') ?></div>
+                    R$ <?= number_format($saldo ?? 0, 2, ',', '.') ?>
                     <div class="card-footer <?= $saldo >= 0 ? 'positive' : 'warning' ?>">
                         <i class="fa-solid fa-wallet"></i> Total acumulado
                     </div>

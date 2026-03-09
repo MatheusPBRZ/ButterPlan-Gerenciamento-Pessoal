@@ -11,24 +11,19 @@
 </head>
 <body>
     <div class="app-container">
-
         <aside class="sidebar">
             <div class="logo">
-                
                 <img src="assets/img/logo.png" alt="Butterlogo" class="logo-img">
             </div>
             <nav>
-    <a href="index.php?page=home"><i class="fa-solid fa-house"></i> Visão Geral</a>
-    <a href="index.php?page=financas"><i class="fa-solid fa-wallet"></i> Finanças</a>
-    <a href="index.php?page=tarefas"><i class="fa-solid fa-list-check"></i> Tarefas</a>
-    <a href="index.php?page=relatorios"><i class="fa-solid fa-chart-pie"></i> Relatórios</a>
-    <div class="logout">
- 
-</nav>
-</nav>
+                <a href="index.php?page=home"><i class="fa-solid fa-house"></i> Visão Geral</a>
+                <a href="index.php?page=financas"><i class="fa-solid fa-wallet"></i> Finanças</a>
+                <a href="index.php?page=tarefas" class="active"><i class="fa-solid fa-list-check"></i> Tarefas</a>
+                <a href="index.php?page=relatorios"><i class="fa-solid fa-chart-pie"></i> Relatórios</a>
+            </nav>
             <div class="logout">
-    <a href="index.php?page=logout"><i class="fa-solid fa-right-from-bracket"></i> Sair</a>
-</div>
+                <a href="index.php?page=logout"><i class="fa-solid fa-right-from-bracket"></i> Sair</a>
+            </div>
         </aside>
 
         <main class="main-content">
@@ -65,21 +60,29 @@
                         <textarea name="description" class="input-desc" placeholder="Adicionar detalhes, observações ou links (opcional)..." rows="1"></textarea>
                     </div>
 
-                    <div class="input-row-bottom" style="flex-wrap: wrap;">
-                        <div class="date-group">
+                    <div class="input-row-bottom" style="flex-wrap: wrap; gap: 15px; align-items: center;">
+                        <div class="date-group" style="display: flex; gap: 10px; align-items: center;">
                             <input type="date" name="due_date" class="input-date" value="<?= date('Y-m-d') ?>">
                             <input type="number" name="duration" class="input-date" placeholder="MIN" style="width:70px;">
+                        </div>
+
+                        <div class="time-group" style="display: flex; align-items: center; gap: 10px;">
+                            <div class="form-check form-switch" style="display: flex; align-items: center; gap: 5px;">
+                                <input class="form-check-input" type="checkbox" id="enable_time" style="cursor: pointer;">
+                                <label class="form-check-label" for="enable_time" style="font-size: 0.85rem; color: #888; cursor: pointer;">Definir Horário</label>
+                            </div>
+                            <div id="time_field_wrapper" style="display: none;">
+                                <input type="time" name="start_time" id="start_time" class="input-date" style="width: 110px;">
+                            </div>
                         </div>
 
                         <div class="recurrence-wrapper">
                             <label class="checkbox-container">
                                 <input type="checkbox" name="is_recurring" id="checkRecur" onchange="toggleDays()">
                                 <span class="checkmark"></span>
-                                <span class="label-text"><i class="fa-solid fa-repeat"></i> Recorrente (Repetir Nos dias:)</span>
+                                <span class="label-text"><i class="fa-solid fa-repeat"></i> Repetir:</span>
                             </label>
-
                             <div id="daysSelector" class="days-selector hidden-days">
-                                <span style="font-size:0.7rem; margin-right:5px; color:#888;">Dias:</span>
                                 <label><input type="checkbox" name="days[]" value="1" checked> S</label>
                                 <label><input type="checkbox" name="days[]" value="2" checked> T</label>
                                 <label><input type="checkbox" name="days[]" value="3" checked> Q</label>
@@ -90,147 +93,44 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn-add">Criar Tarefa</button>
+                        <button type="submit" class="btn-add" style="margin-left: auto;">Criar Tarefa</button>
                     </div>
                 </form>
             </section>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-                
                 <div class="recent-box">
                     <h3><i class="fa-solid fa-layer-group"></i> Em Andamento</h3>
-                    
                     <?php if(empty($pendentes)): ?>
                         <p style="color:#777; padding:20px;">Tudo feito por hoje!</p>
                     <?php else: ?>
                         <ul class="task-list">
                             <?php foreach($pendentes as $task): ?>
                                 <li class="task-item pending" style="flex-direction: column; align-items: flex-start;">
-                                    
                                     <div style="display:flex; width:100%; align-items:center;">
                                         <a href="index.php?page=tarefas&action=toggle_task&id=<?= $task->id ?>" class="check-btn">
                                             <i class="fa-regular fa-square"></i>
                                         </a>
-                                        
                                         <div class="task-info">
-                                            <span class="task-title" style="font-weight:600; font-size:1rem;"><?= htmlspecialchars($task->title) ?></span>
-                                            
+                                            <span class="task-title" style="font-weight:600;"><?= htmlspecialchars($task->title) ?></span>
                                             <div class="task-meta">
-                                                <span class="tag tag-default"><?= $task->category ?></span>
-                                                
+                                                <span class="tag tag-default"><?= htmlspecialchars($task->category) ?></span>
                                                 <?php if($task->duration): ?>
                                                     <span class="meta-date"><i class="fa-regular fa-clock"></i> <?= $task->duration ?>m</span>
                                                 <?php endif; ?>
-                                                
-                                                <?php if(!empty($task->description)): ?>
-                                                    <span class="meta-icon btn-toggle-desc" onclick="toggleDesc('desc-<?= $task->id ?>')" title="Ver Descrição" style="cursor:pointer; color:var(--accent-color);">
-                                                        <i class="fa-solid fa-align-left"></i>
-                                                    </span>
-                                                <?php endif; ?>
-
                                                 <?php if($task->is_recurring): ?>
-                                                <span class="meta-date countdown-timer" 
-                                                data-due="<?= $task->due_date ?>" 
-                                                style="color: var(--accent-color); font-weight: bold; border: 1px solid #444; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">
-                                                <i class="fa-solid fa-hourglass-half"></i> <span class="time-display">...</span>
-                                                </span>
+                                                    <span class="meta-date countdown-timer" data-due="<?= $task->due_date ?>" style="color: var(--accent-color);">
+                                                        <i class="fa-solid fa-hourglass-half"></i> <span class="time-display">...</span>
+                                                    </span>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
-
-                                        <button onclick="openSubtaskModal(<?= $task->id ?>, '<?= addslashes($task->title) ?>')" class="btn-subtask" title="Adicionar Subtarefa">
-                                            <i class="fa-solid fa-diagram-project"></i>
-                                        </button>
-
-                                        <a href="index.php?page=tarefas&action=delete_task&id=<?= $task->id ?>" class="delete-btn">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </a>
+                                        <button onclick="openSubtaskModal(<?= $task->id ?>, '<?= addslashes($task->title) ?>')" class="btn-subtask"><i class="fa-solid fa-diagram-project"></i></button>
+                                        <a href="index.php?page=tarefas&action=delete_task&id=<?= $task->id ?>" class="delete-btn"><i class="fa-solid fa-trash"></i></a>
                                     </div>
-                                    
-                                    <?php if(!empty($task->description)): ?>
-                                        <div id="desc-<?= $task->id ?>" class="task-description hidden">
-                                            <?= nl2br(htmlspecialchars($task->description)) ?>
-                                        </div>
-                                    <?php endif; ?>
-
-                                    <?php if(!empty($task->subtasks)): ?>
-                                        <div class="subtask-container">
-                                            <?php foreach($task->subtasks as $sub): ?>
-                                                <div class="subtask-wrapper">
-                                                    <div class="subtask-item <?= $sub->status == 'done' ? 'done' : '' ?>">
-                                                        <a href="index.php?page=tarefas&action=toggle_task&id=<?= $sub->id ?>" class="check-mini">
-                                                            <i class="fa-solid <?= $sub->status == 'done' ? 'fa-check' : 'fa-minus' ?>"></i>
-                                                        </a>
-                                                        <div style="flex:1;">
-                                                            <span style="font-size:0.9rem;"><?= htmlspecialchars($sub->title) ?></span>
-                                                            <?php if(!empty($sub->description)): ?>
-                                                                <i class="fa-solid fa-align-left" onclick="toggleDesc('desc-<?= $sub->id ?>')" style="font-size:0.7rem; color:var(--text-secondary); cursor:pointer; margin-left:5px;"></i>
-                                                            <?php endif; ?>
-                                                        </div>
-                                                        <?php if($sub->duration): ?>
-                                                            <span style="font-size:0.75rem; color:#666; margin-right:10px;"><?= $sub->duration ?>m</span>
-                                                        <?php endif; ?>
-                                                        <a href="index.php?page=tarefas&action=delete_task&id=<?= $sub->id ?>" class="delete-mini"><i class="fa-solid fa-times"></i></a>
-                                                    </div>
-                                                    <?php if(!empty($sub->description)): ?>
-                                                        <div id="desc-<?= $sub->id ?>" class="subtask-description hidden">
-                                                            <?= nl2br(htmlspecialchars($sub->description)) ?>
-                                                        </div>
-                                                    <?php endif; ?>
-                                                </div>
-                                            <?php endforeach; ?>
-                                            
-                                            <?php 
-                                                $totalSub = count($task->subtasks);
-                                                $doneSub = count(array_filter($task->subtasks, fn($s) => $s->status == 'done'));
-                                                $perc = ($totalSub > 0) ? ($doneSub / $totalSub) * 100 : 0;
-                                            ?>
-                                            <div class="progress-line"><div class="fill" style="width:<?= $perc ?>%"></div></div>
-                                        </div>
-                                    <?php endif; ?>
-
-                                </li>
+                                    </li>
                             <?php endforeach; ?>
                         </ul>
-                    <?php endif; ?>
-
-                    <?php if(!empty($futuras)): ?>
-                        <div style="margin-top:20px; border: 1px dashed #444; background: rgba(0,0,0,0.2); padding:10px; border-radius:8px;">
-                            <h3 style="color: #888; font-size: 0.9rem; margin-bottom:10px;">
-                                <i class="fa-regular fa-calendar"></i> Agendado para o Futuro
-                            </h3>
-                            <ul class="task-list">
-                                <?php foreach($futuras as $task): ?>
-                                    <li class="task-item" style="flex-direction: column; align-items: flex-start; opacity: 0.7;">
-                                        <div style="display:flex; width:100%; align-items:center;">
-                                            <span style="margin-right:15px; color:#555;"><i class="fa-solid fa-clock"></i></span>
-                                            <div class="task-info">
-                                                <span class="task-title" style="color:#aaa;"><?= htmlspecialchars($task->title) ?></span>
-                                                <div class="task-meta">
-                                                    <span class="tag" style="background:#333; color:#fff;">
-                                                        <?= date('d/m', strtotime($task->due_date)) ?> - <?= date('l', strtotime($task->due_date)) ?>
-                                                    </span>
-                                                    <span class="tag tag-default"><?= $task->category ?></span>
-                                                </div>
-                                            </div>
-                                            <a href="index.php?page=tarefas&action=delete_task&id=<?= $task->id ?>" class="delete-btn" style="opacity:0.5;">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </a>
-                                        </div>
-                                        <?php if(!empty($task->subtasks)): ?>
-                                            <div class="subtask-container" style="border-left-color: #444;">
-                                                <?php foreach($task->subtasks as $sub): ?>
-                                                    <div class="subtask-item" style="color: #666;">
-                                                        <i class="fa-solid fa-minus" style="margin-right:10px; font-size:0.7rem;"></i>
-                                                        <?= htmlspecialchars($sub->title) ?>
-                                                    </div>
-                                                <?php endforeach; ?>
-                                            </div>
-                                        <?php endif; ?>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
                     <?php endif; ?>
                 </div>
 
@@ -254,127 +154,67 @@
     <div id="subtaskModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Adicionar Subtarefa</h3>
-                <button class="close-modal" onclick="closeModal('subtaskModal')">&times;</button>
+                <h3>Adicionar Item</h3>
+                <button class="close-modal" onclick="closeModal('subtaskModal')">
+    <i class="fa-solid fa-xmark"></i>
+</button>
             </div>
-            <p style="color:#888; margin-bottom:15px; font-size:0.9rem;">Para: <strong id="parentTaskTitle" style="color:white;"></strong></p>
-            
             <form method="POST" action="index.php?page=tarefas">
                 <input type="hidden" name="action" value="add_task">
                 <input type="hidden" name="parent_id" id="parentIdInput"> 
-                <input type="hidden" name="priority" value="medium">
-                <input type="hidden" name="category" value="Subtarefa">
-                
-                <div class="form-group">
-                    <label>Título</label>
-                    <input type="text" name="title" placeholder="Ex: Ler capítulo 1..." required autocomplete="off">
-                </div>
-                
-                <div class="form-group">
-                    <label>Descrição (Opcional)</label>
-                    <textarea name="description" placeholder="Detalhes extras..." style="width:100%; padding:10px; background:var(--bg-color); border:1px solid #444; color:white; border-radius:6px; resize:vertical;" rows="2"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Duração (min)</label>
-                    <input type="number" name="duration" placeholder="Ex: 30">
-                </div>
-
-                <button type="submit" class="btn-save">Adicionar Item</button>
+                <div class="form-group"><label>Título</label><input type="text" name="title" required></div>
+                <button type="submit" class="btn-save">Adicionar</button>
             </form>
         </div>
     </div>
 
     <script>
-        function openSubtaskModal(parentId, parentTitle) {
-            document.getElementById('parentIdInput').value = parentId;
-            document.getElementById('parentTaskTitle').innerText = parentTitle;
+        // CONTROLE DO CAMPO DE HORÁRIO
+        document.getElementById('enable_time').addEventListener('change', function() {
+            const wrapper = document.getElementById('time_field_wrapper');
+            const input = document.getElementById('start_time');
+            if (this.checked) {
+                wrapper.style.display = 'block';
+                input.required = true;
+            } else {
+                wrapper.style.display = 'none';
+                input.value = '';
+                input.required = false;
+            }
+        });
+
+        // MODAIS E RECORRÊNCIA
+        function openSubtaskModal(id, title) {
+            document.getElementById('parentIdInput').value = id;
             document.getElementById('subtaskModal').classList.add('active');
         }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        window.onclick = function(e) { if(e.target.classList.contains('modal-overlay')) e.target.classList.remove('active'); }
-        
-        function toggleDesc(id) {
-            var el = document.getElementById(id);
-            if(el.classList.contains('hidden')) {
-                el.classList.remove('hidden');
-                el.style.display = 'block';
-            } else {
-                el.classList.add('hidden');
-                el.style.display = 'none';
-            }
-        }
-        
         function toggleDays() {
-            const check = document.getElementById('checkRecur');
             const selector = document.getElementById('daysSelector');
-            if (check.checked) {
-                selector.classList.remove('hidden-days');
-            } else {
-                selector.classList.add('hidden-days');
-            }
+            selector.classList.toggle('hidden-days', !document.getElementById('checkRecur').checked);
         }
 
-// --- LÓGICA DO CRONÔMETRO (MEIA-NOITE) ---
+        // CRONÔMETRO
         function updateTimers() {
-            const timers = document.querySelectorAll('.countdown-timer');
-            const now = new Date().getTime();
-
-            timers.forEach(timer => {
-                // Pega a data de vencimento (ex: 2026-03-09)
-                const dueDateStr = timer.getAttribute('data-due'); 
-                
-                // Quebramos a data em pedaços para evitar fuso horário maluco do JS
-                const parts = dueDateStr.split('-');
-                const year = parseInt(parts[0], 10);
-                const month = parseInt(parts[1], 10) - 1; // Mês no JS começa em 0 (Janeiro = 0)
-                const day = parseInt(parts[2], 10);
-
-                // INÍCIO: 00:00:00 da data da tarefa
-                const startTime = new Date(year, month, day, 0, 0, 0).getTime();
-                // FIM: 23:59:59 da data da tarefa
-                const deadline = new Date(year, month, day, 23, 59, 59).getTime();
-
+            document.querySelectorAll('.countdown-timer').forEach(timer => {
+                const parts = timer.getAttribute('data-due').split('-');
+                const deadline = new Date(parts[0], parts[1]-1, parts[2], 23, 59, 59).getTime();
+                const now = new Date().getTime();
+                const diff = deadline - now;
                 const display = timer.querySelector('.time-display');
 
-                if (now < startTime) {
-                    // CÁLCULO PARA O FUTURO (Ainda não começou)
-                    const distToStart = startTime - now;
-                    const d = Math.floor(distToStart / (1000 * 60 * 60 * 24));
-                    const h = Math.floor((distToStart % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const m = Math.floor((distToStart % (1000 * 60 * 60)) / (1000 * 60));
-                    
-                    if (d > 0) {
-                        display.innerText = `Inicia em ${d}d e ${h}h`;
-                    } else {
-                        display.innerText = `Inicia em ${h}h ${m}m`;
-                    }
-                    timer.style.color = "#888"; // Fica cinza indicando espera
-                    
-                } else if (now > deadline) {
-                    // PASSOU DA MEIA-NOITE (Expirou)
-                    display.innerText = "Expirando...";
-                    timer.style.color = "var(--danger-color)";
-                    
+                if (diff <= 0) {
+                    display.innerText = "Expirado";
                 } else {
-                    // É HOJE! Contando quanto tempo falta para acabar o dia
-                    const distance = deadline - now;
-                    const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                    const s = Math.floor((distance % (1000 * 60)) / 1000);
-
-                    // Formatação bonita: 09h 05m 02s
-                    display.innerText = 
-                        (h < 10 ? "0" + h : h) + "h " + 
-                        (m < 10 ? "0" + m : m) + "m " + 
-                        (s < 10 ? "0" + s : s) + "s";
-                    timer.style.color = "var(--accent-color)";
+                    const h = Math.floor((diff % 86400000) / 3600000);
+                    const m = Math.floor((diff % 3600000) / 60000);
+                    const s = Math.floor((diff % 60000) / 1000);
+                    display.innerText = `${h}h ${m}m ${s}s`;
                 }
             });
         }
-
-        setInterval(updateTimers, 1000); // Atualiza a cada segundo
-        updateTimers(); // Roda imediatamente
+        setInterval(updateTimers, 1000);
+        updateTimers();
     </script>
 </body>
 </html>

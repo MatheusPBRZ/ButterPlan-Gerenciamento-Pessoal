@@ -1,3 +1,12 @@
+        
+        
+ /* Barra de Progresso*/
+.progress-bar-bg { width: 100%; background: rgba(255,255,255,0.1); border-radius: 4px; height: 6px; margin-top: 5px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--accent-color); transition: 0.4s; }
+.history-box { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.8rem; border-left: 2px solid var(--accent-color); }
+
+
+
 :root {
     --bg-color: #121214;
     --sidebar-bg: #202024;
@@ -468,4 +477,27 @@ header {
             padding: 8px;
             border-radius: 6px;
         }
+
+        /* --- ESTILO DO BOTÃO DE FECHAR MODAL --- */
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 2rem; /* Deixa o X bem maior e legível */
+    color: #888; /* Cinza discreto que combina com o tema dark */
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out; /* Deixa a animação suave */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Efeito ao passar o mouse por cima */
+.close-modal:hover {
+    color: #e74c3c; /* Fica vermelho (danger) */
+    background: rgba(231, 76, 60, 0.1); /* Cria um fundo vermelho bem transparente */
+    transform: scale(1.1); /* Dá um leve "zoom" no botão */
+}
   
