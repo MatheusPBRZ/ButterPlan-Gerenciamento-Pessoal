@@ -99,6 +99,7 @@
             </section>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                
                 <div class="recent-box">
                     <h3><i class="fa-solid fa-layer-group"></i> Em Andamento</h3>
                     <?php if(empty($pendentes)): ?>
@@ -125,12 +126,84 @@
                                                 <?php endif; ?>
                                             </div>
                                         </div>
-                                        <button onclick="openSubtaskModal(<?= $task->id ?>, '<?= addslashes($task->title) ?>')" class="btn-subtask"><i class="fa-solid fa-diagram-project"></i></button>
-                                        <a href="index.php?page=tarefas&action=delete_task&id=<?= $task->id ?>" class="delete-btn"><i class="fa-solid fa-trash"></i></a>
+                                        
+                                        <div style="display:flex; gap: 5px;">
+                                            <button type="button" onclick="openEditTaskModal(<?= $task->id ?>, '<?= addslashes($task->title) ?>', '<?= addslashes($task->description ?? '') ?>', '<?= $task->priority ?>', '<?= htmlspecialchars($task->category) ?>', '<?= $task->due_date ?>', '<?= $task->duration ?? '' ?>', '<?= $task->start_time ?? '' ?>')" class="btn-subtask" style="color: #3498db;" title="Editar Tarefa">
+                                                <i class="fa-solid fa-pen"></i>
+                                            </button>
+                                            
+                                            <button onclick="openSubtaskModal(<?= $task->id ?>, '<?= addslashes($task->title) ?>')" class="btn-subtask" title="Adicionar Subtarefa">
+                                                <i class="fa-solid fa-diagram-project"></i>
+                                            </button>
+                                            
+                                            <a href="index.php?page=tarefas&action=delete_task&id=<?= $task->id ?>" class="delete-btn" title="Excluir">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </a>
+                                        </div>
                                     </div>
-                                    </li>
+                                    
+                                    <?php if(!empty($task->subtasks)): ?>
+                                        <div class="subtask-container">
+                                            <?php foreach($task->subtasks as $sub): ?>
+                                                <div class="subtask-wrapper">
+                                                    <div class="subtask-item <?= $sub->status == 'done' ? 'done' : '' ?>">
+                                                        <a href="index.php?page=tarefas&action=toggle_task&id=<?= $sub->id ?>" class="check-mini">
+                                                            <i class="fa-solid <?= $sub->status == 'done' ? 'fa-check' : 'fa-minus' ?>"></i>
+                                                        </a>
+                                                        <div style="flex:1;">
+                                                            <span style="font-size:0.9rem;"><?= htmlspecialchars($sub->title) ?></span>
+                                                        </div>
+                                                        <a href="index.php?page=tarefas&action=delete_task&id=<?= $sub->id ?>" class="delete-mini"><i class="fa-solid fa-times"></i></a>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                            
+                                            <?php 
+                                                $totalSub = count($task->subtasks);
+                                                $doneSub = count(array_filter($task->subtasks, fn($s) => $s->status == 'done'));
+                                                $perc = ($totalSub > 0) ? ($doneSub / $totalSub) * 100 : 0;
+                                            ?>
+                                            <div class="progress-line"><div class="fill" style="width:<?= $perc ?>%"></div></div>
+                                        </div>
+                                    <?php endif; ?>
+                                </li>
                             <?php endforeach; ?>
                         </ul>
+                    <?php endif; ?>
+                    
+                    <?php if(!empty($futuras)): ?>
+                        <div style="margin-top:20px; border: 1px dashed #444; background: rgba(0,0,0,0.2); padding:10px; border-radius:8px;">
+                            <h3 style="color: #888; font-size: 0.9rem; margin-bottom:10px;">
+                                <i class="fa-regular fa-calendar"></i> Agendado para o Futuro
+                            </h3>
+                            <ul class="task-list">
+                                <?php foreach($futuras as $task): ?>
+                                    <li class="task-item" style="flex-direction: row; align-items: center; justify-content: space-between; opacity: 0.7;">
+                                        <div style="display:flex; align-items:center;">
+                                            <span style="margin-right:15px; color:#555;"><i class="fa-solid fa-clock"></i></span>
+                                            <div class="task-info">
+                                                <span class="task-title" style="color:#aaa;"><?= htmlspecialchars($task->title) ?></span>
+                                                <div class="task-meta">
+                                                    <span class="tag" style="background:#333; color:#fff;">
+                                                        <?= date('d/m', strtotime($task->due_date)) ?>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="display:flex; gap: 5px;">
+
+                                            <button type="button" onclick="openEditTaskModal(<?= $task->id ?>, '<?= str_replace(["\r", "\n"], ['\r', '\n'], addslashes($task->title)) ?>', '<?= str_replace(["\r", "\n"], ['\r', '\n'],addslashes($task->description ?? '')) ?>', '<?= $task->priority ?>', '<?= htmlspecialchars($task->category) ?>', '<?= $task->due_date ?>', '<?= $task->duration ?? '' ?>', '<?= $task->start_time ?? '' ?>')" class="btn-subtask" style="color: #3498db; background: none; border: none; cursor: pointer;" title="Editar Tarefa">
+                                            <i class="fa-solid fa-pen"></i>
+                                            </button>
+
+                                            <a href="index.php?page=tarefas&action=delete_task&id=<?= $task->id ?>" class="delete-btn" style="opacity:0.5;">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
                     <?php endif; ?>
                 </div>
 
@@ -154,22 +227,68 @@
     <div id="subtaskModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Adicionar Item</h3>
-                <button class="close-modal" onclick="closeModal('subtaskModal')">
-    <i class="fa-solid fa-xmark"></i>
-</button>
+                <h3>Adicionar Subtarefa</h3>
+                <button type="button" class="close-modal" onclick="closeModal('subtaskModal')"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form method="POST" action="index.php?page=tarefas">
                 <input type="hidden" name="action" value="add_task">
                 <input type="hidden" name="parent_id" id="parentIdInput"> 
-                <div class="form-group"><label>Título</label><input type="text" name="title" required></div>
-                <button type="submit" class="btn-save">Adicionar</button>
+                <div class="form-group"><label>Título da Subtarefa</label><input type="text" name="title" required autocomplete="off"></div>
+                <button type="submit" class="btn-save">Adicionar Item</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="editTaskModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Tarefa</h3>
+                <button type="button" onclick="openEditTaskModal(<?= $task->id ?>, '<?= str_replace(["\r", "\n"], ['\r', '\n'], addslashes($task->title)) ?>', '<?= str_replace(["\r", "\n"], ['\r', '\n'], addslashes($task->description ?? '')) ?>', '<?= $task->priority ?>', '<?= htmlspecialchars($task->category) ?>', '<?= $task->due_date ?>', '<?= $task->duration ?? '' ?>', '<?= $task->start_time ?? '' ?>')" class="btn-subtask" style="color: #3498db; background: none; border: none; cursor: pointer;" title="Editar Tarefa">
+                <i class="fa-solid fa-pen"></i>
+            </button>
+            </div>
+            <form method="POST" action="index.php?page=tarefas">
+                <input type="hidden" name="action" value="edit_task">
+                <input type="hidden" name="task_id" id="editTaskId"> 
+                
+                <div class="form-group"><label>Título</label><input type="text" name="title" id="editTaskTitle" required autocomplete="off"></div>
+                
+                <div style="display:flex; gap:10px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Categoria</label>
+                        <input list="categorias-list" name="category" id="editTaskCategory" class="input-date" style="width:100%;">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>Prioridade</label>
+                        <select name="priority" id="editTaskPriority" class="select-style" style="width:100%;">
+                            <option value="low">Baixa</option>
+                            <option value="medium">Normal</option>
+                            <option value="high">Urgente</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Data e Horário</label>
+                    <div style="display:flex; gap:10px;">
+                        <input type="date" name="due_date" id="editTaskDate" class="input-date" style="flex:1;">
+                        <input type="time" name="start_time" id="editTaskTime" class="input-date" style="flex:1;">
+                        <input type="number" name="duration" id="editTaskDuration" class="input-date" placeholder="Min" style="width:80px;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <textarea name="description" id="editTaskDesc" placeholder="Detalhes extras..." style="width:100%; padding:10px; background:var(--bg-color); border:1px solid #444; color:white; border-radius:6px; resize:vertical;" rows="2"></textarea>
+                </div>
+
+                <button type="submit" class="btn-save">Salvar Alterações</button>
             </form>
         </div>
     </div>
 
     <script>
-        // CONTROLE DO CAMPO DE HORÁRIO
+        // CONTROLE DO CAMPO DE HORÁRIO (Formulário de Criação)
         document.getElementById('enable_time').addEventListener('change', function() {
             const wrapper = document.getElementById('time_field_wrapper');
             const input = document.getElementById('start_time');
@@ -183,12 +302,43 @@
             }
         });
 
-        // MODAIS E RECORRÊNCIA
+        // MODAIS BASE
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        
+        // Fechar no Overlay e ESC
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.classList.remove('active');
+            }
+        }
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                document.querySelectorAll('.modal-overlay.active').forEach(modal => modal.classList.remove('active'));
+            }
+        });
+
+        // SUBTAREFA
         function openSubtaskModal(id, title) {
             document.getElementById('parentIdInput').value = id;
-            document.getElementById('subtaskModal').classList.add('active');
+            openModal('subtaskModal');
         }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        // 👇 NOVA FUNÇÃO: EDITAR TAREFA 👇
+        function openEditTaskModal(id, title, desc, priority, category, dueDate, duration, startTime) {
+            document.getElementById('editTaskId').value = id;
+            document.getElementById('editTaskTitle').value = title;
+            document.getElementById('editTaskDesc').value = desc;
+            document.getElementById('editTaskPriority').value = priority;
+            document.getElementById('editTaskCategory').value = category;
+            document.getElementById('editTaskDate').value = dueDate;
+            document.getElementById('editTaskDuration').value = duration;
+            document.getElementById('editTaskTime').value = startTime;
+            
+            openModal('editTaskModal');
+        }
+
+        // TOGGLE RECORRÊNCIA
         function toggleDays() {
             const selector = document.getElementById('daysSelector');
             selector.classList.toggle('hidden-days', !document.getElementById('checkRecur').checked);

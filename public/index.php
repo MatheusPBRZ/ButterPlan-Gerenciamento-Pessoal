@@ -216,7 +216,25 @@ try {
             }
             header('Location: index.php?page=tarefas'); exit;
         }
+// 👇 ADICIONE O BLOCO DE EDIÇÃO AQUI 👇
+        // --- PROCESSO DE EDIÇÃO DE TAREFA (POST) ---
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] == 'edit_task') {
+            $id = (int)$_POST['task_id'];
+            $title = $_POST['title'];
+            $priority = $_POST['priority'];
+            $category = $_POST['category'];
+            $duration = !empty($_POST['duration']) ? (int)$_POST['duration'] : NULL;
+            $description = !empty($_POST['description']) ? $_POST['description'] : NULL;
+            $start_time = !empty($_POST['start_time']) ? $_POST['start_time'] : NULL;
+            $due_date = !empty($_POST['due_date']) ? $_POST['due_date'] : date('Y-m-d');
 
+            $stmt = $pdo->prepare("UPDATE tasks SET title=?, description=?, priority=?, category=?, due_date=?, start_time=?, duration=? WHERE id=?");
+            $stmt->execute([$title, $description, $priority, $category, $due_date, $start_time, $duration, $id]);
+            
+            header('Location: index.php?page=tarefas'); exit;
+        }
+        // 👆 FIM DO BLOCO DE EDIÇÃO 👆
+        
         // --- AÇÕES VIA GET (TOGGLE E DELETE) ---
         if (isset($_GET['action'])) {
             if ($_GET['action'] == 'toggle_task' && isset($_GET['id'])) {

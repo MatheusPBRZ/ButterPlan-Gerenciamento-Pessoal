@@ -87,10 +87,11 @@
                             'high' => 'var(--danger-color)',
                             'medium' => 'var(--warning-color)',
                             'low' => 'var(--success-color)',
+                            default => 'var(--text-secondary)' 
                         };
                     ?>
                     <span style="font-size:0.6rem; padding:1px 6px; border-radius:3px; border:1px solid <?= $pColor ?>; color:<?= $pColor ?>">
-                        <?= strtoupper($task->priority) ?>
+                    <?= strtoupper($task->priority ??'') ?>
                     </span>
                 </li>
             <?php endforeach; ?>
