@@ -46,7 +46,7 @@
                             <?php foreach($categoriasDB as $cat): ?>
                                 <option value="<?= $cat ?>">
                             <?php endforeach; ?>
-                            <option value="Trabalho"><option value="Estudos"><option value="Financeiro">
+                            <option value="Trabalho"><option value="Financeiro">
                         </datalist>
 
                         <select name="priority" class="select-style">

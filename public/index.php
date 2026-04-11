@@ -202,13 +202,45 @@ try {
                         $minutosDuracao = $duration ? $duration : 60; 
                         $dataFimISO = date('Y-m-d\TH:i:sP', strtotime("$dataInicioISO +$minutosDuracao minutes"));
 
-                        $event = new Event([
-                          'summary' => 'ButterPlan: ' . $title,
-                          'description' => ($description ?? '') . "\n\n🚨 Prioridade: " . ucfirst($priority),
-                          'start' => ['dateTime' => $dataInicioISO, 'timeZone' => 'America/Sao_Paulo'],
-                          'end' => ['dateTime' => $dataFimISO, 'timeZone' => 'America/Sao_Paulo'],
-                        ]);
-                        $service->events->insert('primary', $event);
+                       // 1. Mapeamento de dias (PHP 0-6 para Google SU-SA)
+$mapDias = [0 => 'SU', 1 => 'MO', 2 => 'TU', 3 => 'WE', 4 => 'TH', 5 => 'FR', 6 => 'SA'];
+$diasSelecionados = [];
+
+if ($is_recurring && !empty($_POST['days'])) {
+    foreach ($_POST['days'] as $diaNumero) {
+        if (isset($mapDias[$diaNumero])) {
+            $diasSelecionados[] = $mapDias[$diaNumero];
+        }
+    }
+}
+
+// 2. Criar a string RRULE
+$recurrence = [];
+if (!empty($diasSelecionados)) {
+    $recurrence = ["RRULE:FREQ=WEEKLY;BYDAY=" . implode(',', $diasSelecionados)];
+}
+
+// 3. Montar o Evento para o Google com a recorrência
+$event = new Event([
+    'summary' => 'ButterPlan: ' . $title,
+    'description' => ($description ?? '') . "\n\n🚨 Prioridade: " . ucfirst($priority),
+    'start' => ['dateTime' => $dataInicioISO, 'timeZone' => 'America/Sao_Paulo'],
+    'end' => ['dateTime' => $dataFimISO, 'timeZone' => 'America/Sao_Paulo'],
+    'recurrence' => $recurrence // 👈 A mágica acontece aqui!
+]);
+
+                        // 1. Envia para o Google e guarda a resposta
+                        $createdEvent = $service->events->insert('primary', $event);
+                        
+                        // 2. Pega o ID gerado lá na nuvem
+                        $googleEventId = $createdEvent->getId();
+                        
+                        // 3. Pega o ID da tarefa que acabamos de salvar no MySQL
+                        $localTaskId = $pdo->lastInsertId();
+                        
+                        // 4. Atualiza o MySQL salvando a conexão entre os dois
+                        $stmtUpdate = $pdo->prepare("UPDATE tasks SET google_event_id = ? WHERE id = ?");
+                        $stmtUpdate->execute([$googleEventId, $localTaskId]);
                     }
                 } catch (Exception $e) {
                     error_log("Erro no Google Calendar: " . $e->getMessage());
@@ -236,16 +268,39 @@ try {
         // 👆 FIM DO BLOCO DE EDIÇÃO 👆
         
         // --- AÇÕES VIA GET (TOGGLE E DELETE) ---
-        if (isset($_GET['action'])) {
-            if ($_GET['action'] == 'toggle_task' && isset($_GET['id'])) {
-                $stmt = $pdo->prepare("SELECT status FROM tasks WHERE id = ?");
-                $stmt->execute([$_GET['id']]);
-                $newStatus = ($stmt->fetch()->status == 'pending') ? 'done' : 'pending';
-                $pdo->prepare("UPDATE tasks SET status = ? WHERE id = ?")->execute([$newStatus, $_GET['id']]);
+        // --- PROCESSO DE DELETAR TAREFA ---
+        if (isset($_GET['action']) && $_GET['action'] == 'delete_task' && isset($_GET['id'])) {
+            $id = (int)$_GET['id'];
+            
+            // 1. Busca a tarefa para ver se ela tem um ID do Google
+            $stmt = $pdo->prepare("SELECT google_event_id FROM tasks WHERE id = ?");
+            $stmt->execute([$id]);
+            $taskToDelete = $stmt->fetch(PDO::FETCH_OBJ);
+
+            // 2. Se tiver o ID, conecta no Google e apaga lá primeiro
+            if ($taskToDelete && !empty($taskToDelete->google_event_id)) {
+                try {
+                    $client = new Google\Client();
+                    $client->setAuthConfig(BASE_PATH . 'keys/credentials.json');
+                    $tokenPath = BASE_PATH . 'token.json';
+                    if (file_exists($tokenPath)) {
+                        $accessToken = json_decode(file_get_contents($tokenPath), true);
+                        $client->setAccessToken($accessToken);
+                        $service = new Google\Service\Calendar($client);
+                        
+                        // O comando que deleta o evento principal (e suas repetições)
+                        $service->events->delete('primary', $taskToDelete->google_event_id);
+                    }
+                } catch (Exception $e) {
+                    error_log("Erro ao excluir do Google Calendar: " . $e->getMessage());
+                    // Segue o jogo mesmo se der erro no Google, para não travar o sistema local
+                }
             }
-            if ($_GET['action'] == 'delete_task' && isset($_GET['id'])) {
-                $pdo->prepare("DELETE FROM tasks WHERE id = ?")->execute([$_GET['id']]);
-            }
+
+            // 3. Depois de avisar a nuvem, apaga do banco de dados local
+            $stmt = $pdo->prepare("DELETE FROM tasks WHERE id = ?");
+            $stmt->execute([$id]);
+            
             header('Location: index.php?page=tarefas'); exit;
         }
 
