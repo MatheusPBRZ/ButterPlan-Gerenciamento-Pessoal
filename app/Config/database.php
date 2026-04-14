@@ -8,7 +8,7 @@ class Database {
     public static function getConnection() {
         // Configurações do WAMP (Padrão)
         $host = 'localhost';
-        $db   = 'butterplan';
+        $db   = 'butterplan_demo';
         $user = 'root';
         $pass = ''; // No WAMP a senha padrão é vazia
         $charset = 'utf8mb4';

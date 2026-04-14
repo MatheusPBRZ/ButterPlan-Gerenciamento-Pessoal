@@ -175,8 +175,10 @@ border-radius:5px;">
                     </form>
                 <?php endif; ?>
 
-<a href="index.php?page=financas&action=delete_fixed&id=<?= $conta->id ?>
-" class="delete-btn" title="Excluir Conta Fixa">
+        <a href="index.php?page=financas&action=delete_fixed&id=<?= $conta->id ?>
+        " class="delete-btn" title="Excluir Conta Fixa"
+
+        onclick="return confirm('Tem certeza que deseja excluir este item? Essa ação não pode ser desfeita.');">
                     <i class="fa-solid fa-trash"></i>
                 </a>
             </div>
@@ -202,10 +204,14 @@ border-radius:5px;">
    text-align:right; font-weight:bold;">
     <?= $t->type == 'income' ? '+' : '-' ?> R$ <?= number_format($t->amount, 2, ',', '.') ?>
                                 </td>
-<td style="text-align:right;"><a href="index.php?page=financas&action=delete_transaction&id=<?=
- $t->id ?>" style="color:#555;"><i class="fa-solid fa-trash">
-</i></a>
-</td>
+            <td style="text-align:right;">
+                <a href="index.php?page=financas&action=delete_transaction&id=<?=$t->id ?>" 
+                style="color:#555;"
+                onclick="return confirm('Tem certeza que deseja excluir este item? Essa ação não pode ser desfeita.');">
+                <i class="fa-solid fa-trash">
+                </i>    
+            </a>
+                    </td>
                         </tr>
                         <?php endforeach; ?>
                     </table>

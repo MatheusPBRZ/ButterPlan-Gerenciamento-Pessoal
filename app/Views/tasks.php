@@ -136,7 +136,8 @@
                                                 <i class="fa-solid fa-diagram-project"></i>
                                             </button>
                                             
-                                            <a href="index.php?page=tarefas&action=delete_task&id=<?= $task->id ?>" class="delete-btn" title="Excluir">
+                                            <a href="index.php?page=tarefas&action=delete_task&id=<?= $task->id ?>" class="delete-btn" title="Excluir"
+                                                onclick="return confirm('Tem certeza que deseja excluir este item? Essa ação não pode ser desfeita.');">
                                                 <i class="fa-solid fa-trash"></i>
                                             </a>
                                         </div>
@@ -196,7 +197,8 @@
                                             <i class="fa-solid fa-pen"></i>
                                             </button>
 
-                                            <a href="index.php?page=tarefas&action=delete_task&id=<?= $task->id ?>" class="delete-btn" style="opacity:0.5;">
+                                            <a href="index.php?page=tarefas&action=delete_task&id=<?= $task->id ?>" class="delete-btn" style="opacity:0.5;"
+                                            onclick="return confirm('Tem certeza que deseja excluir este item? Essa ação não pode ser desfeita.');">
                                                 <i class="fa-solid fa-trash"></i>
                                             </a>
                                         </div>
