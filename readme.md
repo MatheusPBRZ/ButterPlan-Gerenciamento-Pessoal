@@ -2,7 +2,7 @@
 
 > "A Bagunça da vida adulta com a usabilidade de uma criança. Uma Dashboard pessoal para unificar sua produtividade e gestão financeira."
 
-![Capa do Projeto](link-para-uma-screenshot-bonita-do-dashboard.jpg)
+![Capa do Projeto](.jpg)
 
 ## 💡 A Origem (Por que eu criei o ButterPlan?)
 A ideia inicial do ButterPlan nasceu de uma necessidade estritamente pessoal. Como estudante de tecnologia, minha rotina estava fragmentada: eu usava um app para rastrear os estudos de programação, outro para listar as metas de inglês, uma planilha solta para o controle financeiro e o Google Agenda para os compromissos. 
